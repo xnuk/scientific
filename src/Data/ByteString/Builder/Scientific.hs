@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, OverloadedStrings, Safe #-}
+{-# LANGUAGE CPP, Safe #-}
 
 module Data.ByteString.Builder.Scientific
     ( scientificBuilder
@@ -58,17 +58,17 @@ formatScientificBuilder fmt decs scntfc
        Nothing ->
         let show_e' = intDec (e-1) in
         case ds of
-          "0"     -> byteStringCopy "0.0e0"
-          [d]     -> char8 d <> byteStringCopy ".0e" <> show_e'
+          "0"     -> byteStringCopy (BC8.pack "0.0e0")
+          [d]     -> char8 d <> byteStringCopy (BC8.pack ".0e") <> show_e'
           (d:ds') -> char8 d <> char8 '.' <> string8 ds' <> char8 'e' <> show_e'
           []      -> error $ "Data.ByteString.Builder.Scientific.formatScientificBuilder" ++
                              "/doFmt/Exponent: []"
        Just dec ->
         let dec' = max dec 1 in
         case is of
-         [0] -> byteStringCopy "0." <>
+         [0] -> byteStringCopy (BC8.pack "0.") <>
                 byteStringCopy (BC8.replicate dec' '0') <>
-                byteStringCopy "e0"
+                byteStringCopy (BC8.pack "e0")
          _ ->
           let
            (ei,is') = roundTo (dec'+1) is
@@ -81,7 +81,7 @@ formatScientificBuilder fmt decs scntfc
       in
       case decs of
        Nothing
-          | e <= 0    -> byteStringCopy "0." <>
+          | e <= 0    -> byteStringCopy (BC8.pack "0.") <>
                          byteStringCopy (BC8.replicate (-e) '0') <>
                          string8 ds
           | otherwise ->
